@@ -8,3 +8,4 @@ Página de vendas moderna, persuasiva e desenvolvida com a metodologia **Mobile 
 - 🗺️ **Guia do Brás:** Seção detalhada com polos estratégicos (Caldeirão da Juta, Rua Miller, Shoppings e Polos Especializados).
 - 📊 **Meta Pixel Oficial:** Rastreamento de `PageView` e `InitiateCheckout` para tráfego pago (Meta Ads).
 - 💳 **Checkout Integrado:** Botões de compra conectados diretamente ao checkout da Cakto.
+
