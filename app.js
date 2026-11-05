@@ -1,6 +1,6 @@
 /* ==========================================================================
    FORNECEDORES TOP BRÁS — SCRIPT DA PÁGINA DE VENDAS (MOBILE FIRST)
-   Funcionalidades: FAQ Accordion, Sticky CTA Bar, Checkout & Meta Pixel Events
+   Funcionalidades: FAQ Accordion, Sticky CTA Bar, Checkout & Toasts
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -69,7 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
   handleScroll();
 
   // ------------------------------------------------------------------------
-  // 3. CHECKOUT CTAs & META PIXEL INITIATECHECKOUT (INICIALIZAÇÃO DE COMPRA)
+  // 3. CHECKOUT CTAs (LINK DIRETO CAKTO — SEM DUPLICAR INITIATECHECKOUT)
+  // O evento InitiateCheckout é disparado nativamente pela própria Cakto.
   // ------------------------------------------------------------------------
   const CAKTO_CHECKOUT_URL = 'https://pay.cakto.com.br/dega2d9_1273419';
   const checkoutButtons = document.querySelectorAll('.btn-checkout');
@@ -83,59 +84,23 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      e.preventDefault();
-      const targetUrl = href || CAKTO_CHECKOUT_URL;
-
-      // Dispara evento padrão InitiateCheckout no Meta Pixel
-      if (typeof window.fbq === 'function') {
-        window.fbq('track', 'InitiateCheckout', {
-          content_name: 'Fornecedores Top Brás',
-          content_category: 'Guia Digital',
-          content_ids: ['top-bras-2990'],
-          content_type: 'product',
-          value: 29.90,
-          currency: 'BRL',
-          num_items: 1
-        });
+      // Se for button sem href nativo, redireciona para a Cakto
+      if (btn.tagName === 'BUTTON') {
+        e.preventDefault();
+        window.location.href = CAKTO_CHECKOUT_URL;
       }
-
-      // Redireciona com tempo de segurança para a requisição de rede do Pixel disparar
-      setTimeout(() => {
-        window.location.href = targetUrl;
-      }, 180);
     });
   });
 
   // ------------------------------------------------------------------------
-  // 4. META PIXEL VIEWCONTENT (AO VISUALIZAR A OFERTA OU O GUIA DO BRÁS)
+  // 4. LINK CARD: GUIA DO BRÁS
   // ------------------------------------------------------------------------
-  if (offerSection && 'IntersectionObserver' in window) {
-    let viewContentFired = false;
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting && !viewContentFired) {
-          viewContentFired = true;
-          if (typeof window.fbq === 'function') {
-            window.fbq('track', 'ViewContent', {
-              content_name: 'Oferta Fornecedores Top Brás',
-              content_category: 'Guia Digital',
-              content_ids: ['top-bras-2990'],
-              content_type: 'product',
-              value: 29.90,
-              currency: 'BRL'
-            });
-          }
-        }
-      });
-    }, { threshold: 0.25 });
-    observer.observe(offerSection);
-  }
-
   const cardGuia = document.getElementById('catCardGuia');
   if (cardGuia) {
     cardGuia.addEventListener('click', (e) => {
       e.preventDefault();
 
+      // Dispara evento ViewContent para navegação de interesse no Guia
       if (typeof window.fbq === 'function') {
         window.fbq('track', 'ViewContent', {
           content_name: 'Guia do Brás',
@@ -158,44 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ------------------------------------------------------------------------
-  // 5. META PIXEL PURCHASE (DISPARO AUTOMÁTICO DE COMPRA SE RETORNAR VIA URL)
-  // ------------------------------------------------------------------------
-  function checkPurchaseFromUrl() {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const isPurchase = params.has('compra') || 
-                         params.get('status') === 'approved' || 
-                         params.get('status') === 'paid' || 
-                         params.get('status') === 'completed' || 
-                         params.has('purchase') || 
-                         params.has('sucesso') || 
-                         params.has('obrigado');
-
-      if (isPurchase) {
-        const alreadyTracked = sessionStorage.getItem('meta_purchase_tracked');
-        if (!alreadyTracked && typeof window.fbq === 'function') {
-          window.fbq('track', 'Purchase', {
-            content_name: 'Fornecedores Top Brás',
-            content_category: 'Guia Digital',
-            content_ids: ['top-bras-2990'],
-            content_type: 'product',
-            value: 29.90,
-            currency: 'BRL',
-            num_items: 1
-          });
-          sessionStorage.setItem('meta_purchase_tracked', 'true');
-        }
-
-        if (typeof window.showToast === 'function') {
-          window.showToast('🎉 Pagamento confirmado com sucesso! Bem-vindo(a)!');
-        }
-      }
-    } catch (err) {}
-  }
-  checkPurchaseFromUrl();
-
-  // ------------------------------------------------------------------------
-  // 6. TOAST NOTIFICATION
+  // 5. TOAST NOTIFICATION
   // ------------------------------------------------------------------------
   let toastTimeout = null;
   window.showToast = function(msg) {
