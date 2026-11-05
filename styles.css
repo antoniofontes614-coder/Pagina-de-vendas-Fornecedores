@@ -78,8 +78,8 @@ body {
   overflow-x: hidden;
   width: 100%;
   min-height: 100vh;
-  /* Espaço inferior de segurança para não cobrir conteúdo no mobile com a barra fixa */
-  padding-bottom: calc(var(--sticky-bar-height) + env(safe-area-inset-bottom, 12px) + 16px);
+  /* Sem barra fixa no rodapé */
+  padding-bottom: 0;
 }
 
 h1, h2, h3, h4, h5, h6 {
